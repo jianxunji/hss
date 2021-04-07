@@ -272,7 +272,7 @@ contract Vat {
         require(live == 1, "Vat/not-live");
         Ilk storage ilk = ilks[i];
         
-        unit rateTeam = rate * teamPoints / totalPoints;
+        uint rateTeam = rate * teamPoints / totalPoints;
         uint rateWithoutTeam = rate - rateTeam;
         //ilk.rate = add(ilk.rate, rate);
         ilk.rate = add(ilk.rate, rateWithoutTeam);
@@ -287,7 +287,7 @@ contract Vat {
     }
     
     function setTeamPoints(uint8 _teamPoints) external note auth {
-        require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= totalPoint);
+        require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= totalPoints);
         teamPoints = _teamPoints;
     }
     
