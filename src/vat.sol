@@ -61,8 +61,8 @@ contract Vat {
     uint256 public live;  // Active Flag
     
     address	public teamAddress;  // the stability fee address for the team
-    uint256		public teamPoints;  // the stability fee points for the team
-		uint256		public totalPoints;  // the stability total fee points
+    uint8		public teamPoints;  // the stability fee points for the team
+		uint8		public totalPoints;  // the stability total fee points
 		uint256 public teamDebt;  // Total Dai for team 
 
     // --- Logs ---
@@ -286,7 +286,7 @@ contract Vat {
         dai[teamAddress]   = add(dai[teamPoints], addDebt);
     }
     
-    function setTeamPoints(uint256 _teamPoints) external note auth {
+    function setTeamPoints(uint8 _teamPoints) external note auth {
         require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= totalPoint);
         teamPoints = _teamPoints;
     }
