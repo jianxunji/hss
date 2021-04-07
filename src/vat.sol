@@ -293,7 +293,7 @@ contract Vat {
     
     function setTeamAddress(address _teamAddress) external note auth {
         require(_teamAddress != address(0), "Vat/team address can not empty");
-        require(_teamAddress != teamAddress), "Vat/team address same as before";
+        require(_teamAddress != teamAddress, "Vat/team address same as before");
         
         dai[_teamAddress] = dai[teamAddress];
         dai[teamAddress] = 0;
