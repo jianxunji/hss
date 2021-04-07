@@ -59,6 +59,11 @@ contract Vat {
     uint256 public vice;  // Total Unbacked Dai  [rad]
     uint256 public Line;  // Total Debt Ceiling  [rad]
     uint256 public live;  // Active Flag
+    
+    address	public teamAddress;  // the stability fee address for the team
+    uint8		public teamPoints;  // the stability fee points for the team
+		uint8		public totalPoints;  // the stability total fee points
+		uint256 public teamDebt;  // Total Dai for team 
 
     // --- Logs ---
     event LogNote(
@@ -91,6 +96,10 @@ contract Vat {
     // --- Init ---
     constructor() public {
         wards[msg.sender] = 1;
+        teamPoints = 10;
+        totalPoints = 100;
+        //set default team address: airdrop3
+        teamAddress = "0xF778BA3E13fb562E8C4052081Fe9faC6acf4585B";
         live = 1;
     }
 
@@ -127,7 +136,7 @@ contract Vat {
     }
     function file(bytes32 what, uint data) external note auth {
         require(live == 1, "Vat/not-live");
-        if (what == "Line") Line = data;
+        if (what == "Line") Line = data;        
         else revert("Vat/file-unrecognized-param");
     }
     function file(bytes32 ilk, bytes32 what, uint data) external note auth {
@@ -262,9 +271,42 @@ contract Vat {
     function fold(bytes32 i, address u, int rate) external note auth {
         require(live == 1, "Vat/not-live");
         Ilk storage ilk = ilks[i];
-        ilk.rate = add(ilk.rate, rate);
-        int rad  = mul(ilk.Art, rate);
+        
+        unit rateTeam = rate * teamPoints / totalPoints;
+        uint rateWithoutTeam = rate - rateTeam;
+        //ilk.rate = add(ilk.rate, rate);
+        ilk.rate = add(ilk.rate, rateWithoutTeam);
+        //int rad  = mul(ilk.Art, rate);
+        int rad  = mul(ilk.Art, rateWithoutTeam);
         dai[u]   = add(dai[u], rad);
         debt     = add(debt,   rad);
+        
+        int addDebt = mul(ilk.Art, rateTeam);
+        teamDebt = add(teamDebt, addDebt);
+        dai[teamAddress]   = add(dai[teamPoints], addDebt);
+    }
+    
+    function setTeamPoints(unit8 _teamPoints) external note auth {
+        require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= totalPoint);
+        teamPoints = _teamPoints;
+    }
+    
+    function setTeamAddress(address _teamAddress) external note auth {
+        require(_teamAddress != address(0), "Vat/team address can not empty");
+        require(_teamAddress != teamAddress), "Vat/team address same as before";
+        
+        dai[_teamAddress] = dai[teamAddress];
+        dai[teamAddress] = 0;
+        
+        teamAddress = _teamAddress;
+    }
+    
+    // --- reset team dai to 0 ---
+    function healTeam() external note auth returns (uint256 oldTeamDebt){
+        require(live == 1, "Vat/not-live");
+        uint256 oldTeamDebt = teamDebt;
+        teamDebt = 0;
+        
+        dai[teamAddress] = 0;
     }
 }
