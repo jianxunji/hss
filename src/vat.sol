@@ -61,8 +61,8 @@ contract Vat {
     uint256 public live;  // Active Flag
     
     address	public teamAddress;  // the stability fee address for the team
-    uint8		public teamPoints;  // the stability fee points for the team
-		uint8		public totalPoints;  // the stability total fee points
+    uint256		public teamPoints;  // the stability fee points for the team
+		uint256		public totalPoints;  // the stability total fee points
 		uint256 public teamDebt;  // Total Dai for team 
 
     // --- Logs ---
@@ -96,8 +96,8 @@ contract Vat {
     // --- Init ---
     constructor() public {
         wards[msg.sender] = 1;
-        teamPoints = 10;
-        totalPoints = 100;
+        teamPoints = 100;
+        totalPoints = 1000;
         //set default team address: airdrop3
         teamAddress = "0xF778BA3E13fb562E8C4052081Fe9faC6acf4585B";
         live = 1;
@@ -286,7 +286,7 @@ contract Vat {
         dai[teamAddress]   = add(dai[teamPoints], addDebt);
     }
     
-    function setTeamPoints(unit8 _teamPoints) external note auth {
+    function setTeamPoints(uint256 _teamPoints) external note auth {
         require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= totalPoint);
         teamPoints = _teamPoints;
     }
@@ -304,7 +304,7 @@ contract Vat {
     // --- reset team dai to 0 ---
     function healTeam() external note auth returns (uint256 oldTeamDebt){
         require(live == 1, "Vat/not-live");
-        uint256 oldTeamDebt = teamDebt;
+        oldTeamDebt = teamDebt;
         teamDebt = 0;
         
         dai[teamAddress] = 0;
