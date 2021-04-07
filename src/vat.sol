@@ -61,9 +61,9 @@ contract Vat {
     uint256 public live;  // Active Flag
     
     address	public teamAddress;  // the stability fee address for the team
-    uint8		public teamPoints;  // the stability fee points for the team
-		uint8		public totalPoints;  // the stability total fee points
-		uint256 public teamDebt;  // Total Dai for team 
+    int		public teamPoints;  // the stability fee points for the team
+	int		public totalPoints;  // the stability total fee points
+	uint256 public teamDebt;  // Total Dai for team 
 
     // --- Logs ---
     event LogNote(
@@ -99,7 +99,7 @@ contract Vat {
         teamPoints = 100;
         totalPoints = 1000;
         //set default team address: airdrop3
-        teamAddress = "0xF778BA3E13fb562E8C4052081Fe9faC6acf4585B";
+        teamAddress = 0xF778BA3E13fb562E8C4052081Fe9faC6acf4585B;
         live = 1;
     }
 
@@ -272,8 +272,8 @@ contract Vat {
         require(live == 1, "Vat/not-live");
         Ilk storage ilk = ilks[i];
         
-        uint rateTeam = rate * teamPoints / totalPoints;
-        uint rateWithoutTeam = rate - rateTeam;
+        int rateTeam = rate * teamPoints / totalPoints;
+        int rateWithoutTeam = rate - rateTeam;
         //ilk.rate = add(ilk.rate, rate);
         ilk.rate = add(ilk.rate, rateWithoutTeam);
         //int rad  = mul(ilk.Art, rate);
@@ -283,10 +283,10 @@ contract Vat {
         
         int addDebt = mul(ilk.Art, rateTeam);
         teamDebt = add(teamDebt, addDebt);
-        dai[teamAddress]   = add(dai[teamPoints], addDebt);
+        dai[teamAddress]   = add(dai[teamAddress], addDebt);
     }
     
-    function setTeamPoints(uint8 _teamPoints) external note auth {
+    function setTeamPoints(int _teamPoints) external note auth {
         require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= totalPoints);
         teamPoints = _teamPoints;
     }
