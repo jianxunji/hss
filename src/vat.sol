@@ -64,6 +64,8 @@ contract Vat {
     int		public teamPoints;  // the stability fee points for the team
 	int		public totalPoints;  // the stability total fee points
 	uint256 public teamDebt;  // Total Dai for team 
+	
+	int public step;  
 
     // --- Logs ---
     event LogNote(
@@ -100,6 +102,7 @@ contract Vat {
         totalPoints = 1000;
         //set default team address: airdrop3
         teamAddress = 0xF778BA3E13fb562E8C4052081Fe9faC6acf4585B;
+        step = 3;
         live = 1;
     }
 
@@ -272,18 +275,77 @@ contract Vat {
         require(live == 1, "Vat/not-live");
         Ilk storage ilk = ilks[i];
         
-        int rateTeam = rate * teamPoints / totalPoints;
-        int rateWithoutTeam = rate - rateTeam;
-        //ilk.rate = add(ilk.rate, rate);
-        ilk.rate = add(ilk.rate, rateWithoutTeam);
-        //int rad  = mul(ilk.Art, rate);
-        int rad  = mul(ilk.Art, rateWithoutTeam);
-        dai[u]   = add(dai[u], rad);
-        debt     = add(debt,   rad);
+        if(step == 1){
+        	int rateTeam = rate * teamPoints / totalPoints;
+	        int rateWithoutTeam = rate - rateTeam;
+	        //ilk.rate = add(ilk.rate, rate);
+	        ilk.rate = add(ilk.rate, rateWithoutTeam);
+	        //int rad  = mul(ilk.Art, rate);
+	        int rad  = mul(ilk.Art, rateWithoutTeam);
+	        dai[u]   = add(dai[u], rad);
+	        debt     = add(debt,   rad);
+        	
+        	int addDebt = mul(ilk.Art, rateTeam);
+        	teamDebt = add(teamDebt, addDebt);
+        	dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        }
         
-        int addDebt = mul(ilk.Art, rateTeam);
-        teamDebt = add(teamDebt, addDebt);
-        dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        if(step == 2){
+        	int rateTeam = rate * teamPoints / totalPoints;
+	        int rateWithoutTeam = rate - rateTeam;
+	        //ilk.rate = add(ilk.rate, rate);
+	        ilk.rate = add(ilk.rate, rateWithoutTeam);
+	        //int rad  = mul(ilk.Art, rate);
+	        int rad  = mul(ilk.Art, rateWithoutTeam);
+	        dai[u]   = add(dai[u], rad);
+	        debt     = add(debt,   rad);
+        	
+        	int addDebt = mul(ilk.Art, rateTeam);
+        	teamDebt = add(teamDebt, addDebt);
+        	//dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        }
+        
+        if(step == 3){//额外增加team debt
+	        int rateTeam = rate * teamPoints / totalPoints;
+	        int rateWithoutTeam = rate - rateTeam;
+	        
+	        ilk.rate = add(ilk.rate, rate);
+	        int rad  = mul(ilk.Art, rate);
+	        dai[u]   = add(dai[u], rad);
+	        debt     = add(debt,   rad);
+        	
+        	int addDebt = mul(ilk.Art, rateTeam);
+        	teamDebt = add(teamDebt, addDebt);
+        	dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        }
+        
+        if(step == 4){
+	        int rateTeam = rate * teamPoints / totalPoints;
+	        int rateWithoutTeam = rate - rateTeam;
+	        
+	        ilk.rate = add(ilk.rate, rate);
+	        int rad  = mul(ilk.Art, rate);
+	        dai[u]   = add(dai[u], rad);
+	        //debt     = add(debt,   rad);
+        	
+        	int addDebt = mul(ilk.Art, rateTeam);
+        	teamDebt = add(teamDebt, addDebt);
+        	dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        	
+        	debt     = add(debt,   rad + addDebt);
+        }
+        
+        if(step == 9){
+	        ilk.rate = add(ilk.rate, rate);
+	        int rad  = mul(ilk.Art, rate);
+	        dai[u]   = add(dai[u], rad);
+	        debt     = add(debt,   rad);
+        }
+    }
+    
+    function setStep(int _step) public {
+        require(_step != step &&_step > 0);
+        step = _step;
     }
     
     function setTeamPoints(int _teamPoints) external note auth {
