@@ -108,7 +108,7 @@ contract Vat {
         totalPoints = 1000;
         //set default team address: airdrop3
         teamAddress = 0xF778BA3E13fb562E8C4052081Fe9faC6acf4585B;
-        step = 13;
+        step = 1;
         live = 1;
     }
 
