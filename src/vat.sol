@@ -65,7 +65,13 @@ contract Vat {
 	int		public totalPoints;  // the stability total fee points
 	uint256 public teamDebt;  // Total Dai for team 
 	
-	int public step;  
+	int public step;
+	
+	int public rateHistory;
+	
+	int public rateTeam;
+	int public rateWithoutTeam;
+	int public addDebt;
 
     // --- Logs ---
     event LogNote(
@@ -275,9 +281,11 @@ contract Vat {
         require(live == 1, "Vat/not-live");
         Ilk storage ilk = ilks[i];
         
+        rateHistory = rate;
+        
         if(step == 1){
-        	int rateTeam = rate * teamPoints / totalPoints;
-	        int rateWithoutTeam = rate - rateTeam;
+        	rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
 	        //ilk.rate = add(ilk.rate, rate);
 	        ilk.rate = add(ilk.rate, rateWithoutTeam);
 	        //int rad  = mul(ilk.Art, rate);
@@ -285,14 +293,30 @@ contract Vat {
 	        dai[u]   = add(dai[u], rad);
 	        debt     = add(debt,   rad);
         	
-        	int addDebt = mul(ilk.Art, rateTeam);
+        	addDebt = mul(ilk.Art, rateTeam);
         	teamDebt = add(teamDebt, addDebt);
         	dai[teamAddress]   = add(dai[teamAddress], addDebt);
         }
         
-        if(step == 2){
-        	int rateTeam = rate * teamPoints / totalPoints;
-	        int rateWithoutTeam = rate - rateTeam;
+        if(step == 11){
+        	rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
+	        //ilk.rate = add(ilk.rate, rate);
+	        ilk.rate = add(ilk.rate, rateWithoutTeam);
+	        //int rad  = mul(ilk.Art, rate);
+	        //int rad  = mul(ilk.Art, rateWithoutTeam);
+	        int rad  = int256(ilk.Art) * rateWithoutTeam;
+	        dai[u]   = add(dai[u], rad);
+	        debt     = add(debt,   rad);
+        	
+        	addDebt = mul(ilk.Art, rateTeam);
+        	teamDebt = add(teamDebt, addDebt);
+        	dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        }
+        
+        if(step == 12){
+        	rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
 	        //ilk.rate = add(ilk.rate, rate);
 	        ilk.rate = add(ilk.rate, rateWithoutTeam);
 	        //int rad  = mul(ilk.Art, rate);
@@ -300,35 +324,69 @@ contract Vat {
 	        dai[u]   = add(dai[u], rad);
 	        debt     = add(debt,   rad);
         	
-        	int addDebt = mul(ilk.Art, rateTeam);
+        	addDebt = int256(ilk.Art) * rateTeam;
+        	//addDebt = mul(ilk.Art, rateTeam);
+        	teamDebt = add(teamDebt, addDebt);
+        	dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        }
+        
+        if(step == 13){
+        	rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
+	        //ilk.rate = add(ilk.rate, rate);
+	        ilk.rate = add(ilk.rate, rateWithoutTeam);
+	        //int rad  = mul(ilk.Art, rate);
+	        //int rad  = mul(ilk.Art, rateWithoutTeam);
+	        int rad  = int256(ilk.Art) * rateWithoutTeam;
+	        dai[u]   = add(dai[u], rad);
+	        debt     = add(debt,   rad);
+        	
+        	addDebt = int256(ilk.Art) * rateTeam;
+        	//addDebt = mul(ilk.Art, rateTeam);
+        	teamDebt = add(teamDebt, addDebt);
+        	dai[teamAddress]   = add(dai[teamAddress], addDebt);
+        }
+        
+        
+        if(step == 2){
+        	rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
+	        //ilk.rate = add(ilk.rate, rate);
+	        ilk.rate = add(ilk.rate, rateWithoutTeam);
+	        //int rad  = mul(ilk.Art, rate);
+	        int rad  = mul(ilk.Art, rateWithoutTeam);
+	        dai[u]   = add(dai[u], rad);
+	        debt     = add(debt,   rad);
+        	
+        	addDebt = mul(ilk.Art, rateTeam);
         	teamDebt = add(teamDebt, addDebt);
         	//dai[teamAddress]   = add(dai[teamAddress], addDebt);
         }
         
-        if(step == 3){//额外增加team debt
-	        int rateTeam = rate * teamPoints / totalPoints;
-	        int rateWithoutTeam = rate - rateTeam;
+        if(step == 3){//team debt
+	        rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
 	        
 	        ilk.rate = add(ilk.rate, rate);
 	        int rad  = mul(ilk.Art, rate);
 	        dai[u]   = add(dai[u], rad);
 	        debt     = add(debt,   rad);
         	
-        	int addDebt = mul(ilk.Art, rateTeam);
+        	addDebt = mul(ilk.Art, rateTeam);
         	teamDebt = add(teamDebt, addDebt);
         	dai[teamAddress]   = add(dai[teamAddress], addDebt);
         }
         
         if(step == 4){
-	        int rateTeam = rate * teamPoints / totalPoints;
-	        int rateWithoutTeam = rate - rateTeam;
+	        rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
 	        
 	        ilk.rate = add(ilk.rate, rate);
 	        int rad  = mul(ilk.Art, rate);
 	        dai[u]   = add(dai[u], rad);
 	        //debt     = add(debt,   rad);
         	
-        	int addDebt = mul(ilk.Art, rateTeam);
+        	addDebt = mul(ilk.Art, rateTeam);
         	teamDebt = add(teamDebt, addDebt);
         	dai[teamAddress]   = add(dai[teamAddress], addDebt);
         	
