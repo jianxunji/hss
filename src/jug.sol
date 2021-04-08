@@ -27,6 +27,8 @@ interface VatLike {
         uint256 rate   // [ray]
     );
     function fold(bytes32,address,int) external;
+    function teamPoints() external returns (int);
+    function totalPoints() external returns (int);
 }
 
 contract Jug is LibNote {
@@ -49,6 +51,7 @@ contract Jug is LibNote {
     VatLike                  public vat;   // CDP Engine
     address                  public vow;   // Debt Engine
     uint256                  public base;  // Global, per-second stability fee contribution [ray]
+
 
     // --- Init ---
     constructor(address vat_) public {
@@ -115,13 +118,15 @@ contract Jug is LibNote {
         if (what == "vow") vow = data;
         else revert("Jug/file-unrecognized-param");
     }
-
+    
     // --- Stability Fee Collection ---
     function drip(bytes32 ilk) external note returns (uint rate) {
         require(now >= ilks[ilk].rho, "Jug/invalid-now");
         (, uint prev) = vat.ilks(ilk);
-        rate = rmul(rpow(add(base, ilks[ilk].duty), now - ilks[ilk].rho, ONE), prev);
+        uint originalRate = rmul(rpow(add(base, ilks[ilk].duty), now - ilks[ilk].rho, ONE), prev);
         vat.fold(ilk, vow, diff(rate, prev));
         ilks[ilk].rho = now;
+        
+        rate = originalRate * uint(vat.totalPoints() - vat.teamPoints()) / uint(vat.totalPoints());
     }
 }
