@@ -124,7 +124,7 @@ contract Jug is LibNote {
         require(now >= ilks[ilk].rho, "Jug/invalid-now");
         (, uint prev) = vat.ilks(ilk);
         uint originalRate = rmul(rpow(add(base, ilks[ilk].duty), now - ilks[ilk].rho, ONE), prev);
-        vat.fold(ilk, vow, diff(rate, prev));
+        vat.fold(ilk, vow, diff(originalRate, prev));
         ilks[ilk].rho = now;
         
         rate = originalRate * uint(vat.totalPoints() - vat.teamPoints()) / uint(vat.totalPoints());
