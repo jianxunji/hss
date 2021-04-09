@@ -406,7 +406,7 @@ contract Vat {
     }
     
     function setTeamPoints(int _teamPoints) external note auth {
-        require(_teamPoints != teamPoints &&_teamPoints >= 0 &&_teamPoints <= 50 && _teamPoints <= totalPoints);
+        require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= 50 && _teamPoints <= totalPoints);
         teamPoints = _teamPoints;
     }
     
