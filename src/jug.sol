@@ -27,6 +27,9 @@ interface VatLike {
         uint256 rate   // [ray]
     );
     function fold(bytes32,address,int) external;
+    
+    function teamAddress() external returns (address);
+    function step() external returns (int);
     function teamPoints() external returns (int);
     function totalPoints() external returns (int);
 }
@@ -127,6 +130,10 @@ contract Jug is LibNote {
         vat.fold(ilk, vow, diff(originalRate, prev));
         ilks[ilk].rho = now;
         
-        rate = originalRate * uint(vat.totalPoints() - vat.teamPoints()) / uint(vat.totalPoints());
+        if(vat.step() == 3){
+					rate = originalRate;
+        }else{
+					rate = originalRate * uint(vat.totalPoints() - vat.teamPoints()) / uint(vat.totalPoints());
+        }
     }
 }
