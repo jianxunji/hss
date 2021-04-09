@@ -108,7 +108,7 @@ contract Vat {
         totalPoints = 1000;
         //set default team address: airdrop3
         teamAddress = 0xF778BA3E13fb562E8C4052081Fe9faC6acf4585B;
-        step = 1;
+        step = 3;
         live = 1;
     }
 
@@ -364,14 +364,13 @@ contract Vat {
         }
         
         if(step == 3){//team debt
-	        rateTeam = rate * teamPoints / totalPoints;
-	        rateWithoutTeam = rate - rateTeam;
-	        
 	        ilk.rate = add(ilk.rate, rate);
 	        int rad  = mul(ilk.Art, rate);
 	        dai[u]   = add(dai[u], rad);
 	        debt     = add(debt,   rad);
         	
+        	rateTeam = rate * teamPoints / totalPoints;
+	        rateWithoutTeam = rate - rateTeam;
         	addDebt = mul(ilk.Art, rateTeam);
         	teamDebt = add(teamDebt, addDebt);
         	dai[teamAddress]   = add(dai[teamAddress], addDebt);
@@ -407,7 +406,7 @@ contract Vat {
     }
     
     function setTeamPoints(int _teamPoints) external note auth {
-        require(_teamPoints != teamPoints &&_teamPoints >= 0 && _teamPoints <= totalPoints);
+        require(_teamPoints != teamPoints &&_teamPoints >= 0 &&_teamPoints <= 50 && _teamPoints <= totalPoints);
         teamPoints = _teamPoints;
     }
     
